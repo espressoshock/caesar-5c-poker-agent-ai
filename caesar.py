@@ -107,11 +107,6 @@ class Caesar:
             # = Monte Carlo LRR with R-Sampling =
             # ===================================
             for si in range(M):
-                # ============================
-                # = No discards Special Case =
-                # ============================
-                if c_ndiscards == 0:
-                    break
                 # ========================
                 # = Compute replacements =
                 # ========================
@@ -119,6 +114,14 @@ class Caesar:
                     x if x not in ["10h", "10d", "10s", "10c"] else "T" + x[2]
                     for x in c_hand
                 ]
+                # ============================
+                # = No discards Special Case =
+                # ============================
+                if c_ndiscards == 0:
+                    # compute directly current hand
+                    mc_samples[idis][si] = (c_hand_sample, idis)
+                    mc_betas[idis][si] = evaluate_cards(*c_hand_sample)
+                    break
                 c_deck = self._build_new_deck(exclude=c_hand)
                 rng = np.random.default_rng()
                 c_hand_sample.extend(rng.choice(c_deck, c_ndiscards))
@@ -137,7 +140,6 @@ class Caesar:
         # TODO: Replace built-in sort with radix-sort
         s_idis = np.argsort(mc_beta_hats)
         print("mc: ", mc_beta_hats)
-        print("sorted: ", s_idis)
         print("given hand: ", hand)
         print("best strategy found: ", s_idis[-1], discards[s_idis[-1]])
 
