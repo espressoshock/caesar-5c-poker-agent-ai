@@ -121,7 +121,7 @@ class Caesar:
                     # compute directly current hand
                     mc_samples[idis][si] = (c_hand_sample, idis)
                     mc_betas[idis][si] = evaluate_cards(*c_hand_sample)
-                    break
+                    continue
                 c_deck = self._build_new_deck(exclude=c_hand)
                 rng = np.random.default_rng()
                 c_hand_sample.extend(rng.choice(c_deck, c_ndiscards))
@@ -141,7 +141,7 @@ class Caesar:
         s_idis = np.argsort(mc_beta_hats)
         print("mc: ", mc_beta_hats)
         print("given hand: ", hand)
-        print("best strategy found: ", s_idis[-1], discards[s_idis[-1]])
+        print("best strategy found: ", s_idis[0], discards[s_idis[0]])
 
     #######################################################################
     #                                Utils                                #
@@ -156,8 +156,7 @@ class Caesar:
 
 
 c = Caesar()
-c._mc_ev_draw(hand=["Qs", "10h", "Ac", "8s", "4d"], M=1)
-# hand = ["Qs", "5h", "Ac", "8s", "4d"]
-# eval = evaluate_cards(*hand)
+c._mc_ev_draw(hand=["Ac", "10c", "Jc", "Qc", "Kc"], M=1)
+# hand = ["Ts", "As", "Js", "Qs", "Ks"]
 # ndeck = c._get_new_deck(["Qs", "5h", "Ac", "8s", "4d"])
 # print("deck:, ", ndeck, len(ndeck))
