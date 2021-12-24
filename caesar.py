@@ -106,6 +106,8 @@ class Caesar:
             # ===================================
             # = Monte Carlo LRR with R-Sampling =
             # ===================================
+            # add hybrid selection to reduce
+            # search space
             for si in range(M):
                 # ========================
                 # = Compute replacements =
@@ -117,6 +119,8 @@ class Caesar:
                 # ============================
                 # = No discards Special Case =
                 # ============================
+                # TODO: update this with analytical statistics
+                #  no need ot waste cycles here
                 if c_ndiscards == 0:
                     # compute directly current hand
                     mc_samples[idis][si] = (c_hand_sample, idis)
@@ -124,7 +128,8 @@ class Caesar:
                     continue
                 c_deck = self._build_new_deck(exclude=c_hand)
                 rng = np.random.default_rng()
-                c_hand_sample.extend(rng.choice(c_deck, c_ndiscards))
+                sampled = rng.choice(c_deck, c_ndiscards, replace=False)
+                c_hand_sample.extend(sampled)
                 # ================================
                 # = Monte Carlo Samples and Beta =
                 # ================================
@@ -138,6 +143,7 @@ class Caesar:
         # = Compute best strategy =
         # =========================
         # TODO: Replace built-in sort with radix-sort
+        # TODO: Add bluffing as hybrid meta-metric
         s_idis = np.argsort(mc_beta_hats)
         print("mc: ", mc_beta_hats)
         print("given hand: ", hand)
@@ -150,13 +156,19 @@ class Caesar:
         suits = ["h", "d", "s", "c"]
         ranks = ["2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K", "A"]
         deck = [r + s for r in ranks for s in suits]
-        for c in exclude:
-            deck.remove(c if c not in ["10h", "10d", "10s", "10c"] else "T" + c[2])
-        return deck
+        # for c in exclude:
+        #     deck.remove(c if c not in ["10h", "10d", "10s", "10c"] else "T" + c[2])
+        # ==================
+        # = Faster exclude =
+        # ==================
+        return self._fast_deck_update(deck, exclude)
+
+    def _fast_deck_update(self, deck, exclude) -> list:
+        return list(set(deck) - set(exclude))
 
 
 c = Caesar()
-c._mc_ev_draw(hand=["Ac", "10c", "Jc", "Qc", "Kc"], M=1)
-# hand = ["Ts", "As", "Js", "Qs", "Ks"]
-# ndeck = c._get_new_deck(["Qs", "5h", "Ac", "8s", "4d"])
+c._mc_ev_draw(hand=["Ac", "As", "Ad", "Ah", "5c"], M=1000)
+# hand = ["Qs", "8s", "Js", "Qc", "Ks"]
+# ndeck = c._build_new_deck(exclude=hand)
 # print("deck:, ", ndeck, len(ndeck))
