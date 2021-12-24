@@ -27,7 +27,9 @@ class Caesar:
     ###################
     # Hybrid optimized
     # monte-carlo variation
-    def _mc_ev_draw(self, hand: list, M: int = DRAW_MONTECARLO_SAMPLES_N) -> int:
+    def _mc_ev_draw(
+        self, hand: list, max_depth: int = 32, M: int = DRAW_MONTECARLO_SAMPLES_N
+    ) -> int:
         # ======================
         # = Discards scenarios =
         # ======================
@@ -87,7 +89,7 @@ class Caesar:
         # ===============
         # = Simulations =
         # ===============
-        for idis in range(len(discards)):
+        for idis in range(max_depth):
             # ====================
             # = Compute new hand =
             # ====================
