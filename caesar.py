@@ -5,7 +5,7 @@
 # =Imports
 import numpy as np
 
-# faster than our implementation
+# faster than my implementation
 from phevaluator import evaluate_cards
 
 
@@ -130,6 +130,7 @@ class Caesar:
                 rng = np.random.default_rng()
                 sampled = rng.choice(c_deck, c_ndiscards, replace=False)
                 c_hand_sample.extend(sampled)
+                # print("evaluating: ", c_hand_sample)
                 # ================================
                 # = Monte Carlo Samples and Beta =
                 # ================================
@@ -138,16 +139,18 @@ class Caesar:
             # ==============
             # = Compute β̂ =
             # ==============
-            mc_beta_hats[idis] = np.mean(mc_betas)
+            mc_beta_hats[idis] = np.mean(mc_betas[idis])
         # =========================
         # = Compute best strategy =
         # =========================
         # TODO: Replace built-in sort with radix-sort
         # TODO: Add bluffing as hybrid meta-metric
+        # print("mc: ", mc_beta_hats)
+        print("mc_betas: ", mc_betas)
         s_idis = np.argsort(mc_beta_hats)
-        print("mc: ", mc_beta_hats)
         print("given hand: ", hand)
         print("best strategy found: ", s_idis[0], discards[s_idis[0]])
+        print("min value found: ", min(mc_beta_hats))
 
     #######################################################################
     #                                Utils                                #
@@ -167,8 +170,16 @@ class Caesar:
         return list(set(deck) - set(exclude))
 
 
+#######################################################################
+#                   ONLY FOR TESTING AND DEBUGGING                    #
+#######################################################################
 c = Caesar()
-c._mc_ev_draw(hand=["Ac", "As", "Ad", "Ah", "5c"], M=1000)
+import time
+
+start = time.time()
+m = c._mc_ev_draw(hand=["4h", "5s", "8c", "Ad", "As"], M=500)
+end = time.time()
+print("TOOK: ", end - start)
 # hand = ["Qs", "8s", "Js", "Qc", "Ks"]
 # ndeck = c._build_new_deck(exclude=hand)
 # print("deck:, ", ndeck, len(ndeck))
