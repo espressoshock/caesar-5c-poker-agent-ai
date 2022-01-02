@@ -20,7 +20,7 @@ class Round:
     #################
     # opponents: {name: chips}
     # number: server round number
-    def __init__(self, number: int, ante: int, opponents: list):
+    def __init__(self, number: int, ante: int, opponents: dict):
         self.number = number
         self.ante = ante
 
