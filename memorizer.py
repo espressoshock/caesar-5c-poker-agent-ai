@@ -3,33 +3,37 @@
 #######################################################################
 
 # Imports
-from round import Round
+from round import Round, WinType
+import pickle
+import time
 
 
 class Memorizer:
     #################
     #  Constructor  #
     #################
-    def __init__(self, opponents: list, current_round: int = 0):
+    def __init__(self, opponents: list, current_round: int = 0, log: bool = True):
+        # TODO: Hash oponents' names to avoid unparsable chars
         self.o_names = opponents
         self.rounds = []
         self.current_round = current_round
+        self.log = log
 
     # =============
     # = New Round =
     # =============
     def new_round(self, round_number: int) -> None:
-        self.current_round = round_number
+        self.current_round = int(round_number) - 1
         rs = {}
-        for o in self.o_names:
-            rs = {o: 0}
+        for name in self.o_names:
+            rs[name] = 0
         self.rounds.append(Round(round_number, ante=0, opponents=rs))
 
     # ==============================
     # = Update player's chip count =
     # ==============================
     def update_player_chips(self, player: str, chips: int) -> None:
-        self.rounds[self.current_round].oponents[player].update_chips(chips)
+        self.rounds[self.current_round].opponents[player].update_chips(chips)
 
     # =============================
     # = Update current round Ante =
@@ -89,5 +93,23 @@ class Memorizer:
     # =================================
     # = Round over - Winner announced =
     # =================================
-    def round_over(self, wtype: Round.Win_Type, player: str, amount: int) -> None:
+    def round_over(self, wtype: WinType, player: str, amount: int) -> None:
         self.rounds[self.current_round].over(wtype, player, amount)
+
+    # =============
+    # = Game over =
+    # =============
+    def game_over(self) -> None:
+        if self.log:
+            fname = "dumps/dump_" + str(time.time()) + ".log"
+            fdump = open(fname, "ab")
+            pickle.dump(self.rounds, fdump)
+            fdump.close()
+            print("Log File dumped correctly")
+
+    # ==================
+    # = Hand reveladed =
+    # ==================
+    # during showdown
+    def hand_revealed(self, player: str, hand: list) -> None:
+        self.rounds[self.current_round].opponents[player].label_hand(hand)

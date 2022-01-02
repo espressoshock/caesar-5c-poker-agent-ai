@@ -30,7 +30,7 @@ class Round:
         # for simplicity
         # access actions
         # directly
-        self.opponents = {name: Player(chips) for name, chips in opponents}
+        self.opponents = {name: Player(chips) for name, chips in opponents.items()}
 
         # =================
         # = Round Results =
