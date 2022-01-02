@@ -4,6 +4,7 @@
 
 # =Imports
 from memorizer import Memorizer
+from mc_cdraw import MC_CDraw
 import enum
 
 
@@ -27,6 +28,14 @@ class Caesar:
         PLAYER_HAND = (12,)
         ROUND_OVER_UNDISPUTED = (13,)
         ROUND_OVER_DISPUTED = (14,)
+
+    #################
+    #  ACT(s) ENUM  #
+    #################
+    class Act(enum.Enum):
+        OPEN = (0,)
+        CALL_OR_RAISE = (1,)
+        DRAW = (2,)
 
     ############
     #  CONSTS  #
@@ -58,9 +67,9 @@ class Caesar:
         # ======================
         self.registered_players = dict()
 
-    #########
-    #  SEE  #
-    #########
+    #######################################################################
+    #                               SEE(s)                                #
+    #######################################################################
     def see(self, what: See, *args) -> None:
         print("what", what, args)
         gateway = {
@@ -82,7 +91,7 @@ class Caesar:
         }
         if what == self.See.NEW_ROUND and args[0] < 2:
             return
-        return gateway.get(what, "Error: not found")(*args)
+        return gateway.get(what, "Error: what not found")(*args)
 
     # ===========================
     # = To patch initial config =
@@ -97,3 +106,28 @@ class Caesar:
                     self.memorizer.update_player_chips(_player, int(_chips))
         else:
             self.memorizer.update_player_chips(player, int(chips))
+
+    #######################################################################
+    #                               ACT(s)                                #
+    #######################################################################
+    def act(self, how: Act, *args) -> None:
+        print("how", how, args)
+        gateway = {
+            self.Act.OPEN: None,
+            self.Act.CALL_OR_RAISE: None,
+            self.Act.DRAW: self.draw,
+        }
+        return gateway.get(how, "Error: how not found")(*args)
+
+    # =====================
+    # = Inner Caesar acts =
+    # =====================
+    def open(self, *args) -> None:
+        pass
+
+    # ========
+    # = Draw =
+    # ========
+    def draw(self, hand: list) -> list:
+        print("given hand: ", hand)
+        return " ".join(MC_CDraw.mc_ev_draw(hand=hand, M=500, max_depth=32)[1])

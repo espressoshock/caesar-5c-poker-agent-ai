@@ -108,10 +108,7 @@ def queryCallRaiseAction(
 ##########
 # Called during draw phase
 def queryCardsToThrow(_hand):
-    # random replace me
-    import random
-
-    return _hand[random.randint(0, 4)] + " "
+    return PokerGame.agent.act(Caesar.Act.DRAW, _hand)
 
 
 #######################################################################
