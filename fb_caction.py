@@ -143,6 +143,9 @@ class FB_cAction:
     #######################################################################
     #                         Losing probability                          #
     #######################################################################
+    # =================
+    # = Having a Pair =
+    # =================
     @staticmethod
     def _having_pair(hand: list) -> float:
         # ==========
@@ -178,6 +181,9 @@ class FB_cAction:
             + FB_cAction.HandRanks.ROYAL_FLUSH.value[1]
         )
 
+    # ==================
+    # = Having 2 Pairs =
+    # ==================
     @staticmethod
     def _having_2pair(hand: list) -> float:
         print("given: ", hand)
@@ -214,6 +220,9 @@ class FB_cAction:
             + FB_cAction.HandRanks.ROYAL_FLUSH.value[1]
         )
 
+    # ======================
+    # = Having 3 of a Kind =
+    # ======================
     @staticmethod
     def _having_3ok(hand: list) -> float:
         print("given: ", hand)
@@ -245,6 +254,9 @@ class FB_cAction:
             + FB_cAction.HandRanks.ROYAL_FLUSH.value[1]
         )
 
+    # ===================
+    # = Having Straight =
+    # ===================
     @staticmethod
     def _having_straight(hand: list) -> float:
         print("given: ", hand)
@@ -274,8 +286,15 @@ class FB_cAction:
             + FB_cAction.HandRanks.ROYAL_FLUSH.value[1]
         )
 
+    # ==================
+    # = Having a Flush =
+    # ==================
     # TODO: Implement Flush
+    ####################
 
+    # =====================
+    # = Having full house =
+    # =====================
     @staticmethod
     def _having_full_house(hand: list) -> float:
         print("given: ", hand)
@@ -310,6 +329,9 @@ class FB_cAction:
             + FB_cAction.HandRanks.ROYAL_FLUSH.value[1]
         )
 
+    # ======================
+    # = Having 4 of a Kind =
+    # ======================
     @staticmethod
     def _having_4ok(hand: list) -> float:
         print("given: ", hand)
@@ -335,6 +357,9 @@ class FB_cAction:
             + FB_cAction.HandRanks.ROYAL_FLUSH.value[1]
         )
 
+    # ===========================
+    # = having a Straight Flush =
+    # ===========================
     @staticmethod
     def _having_straight_flush(hand: list) -> float:
         print("given: ", hand)
@@ -355,6 +380,13 @@ class FB_cAction:
         better_straight_flush = (_diffs(max_card) * 4) / all_comb
 
         return better_straight_flush + FB_cAction.HandRanks.ROYAL_FLUSH.value[1]
+
+    # ========================
+    # = Having a Royal Flush =
+    # ========================
+    @staticmethod
+    def _having_royal_flush(hand: list) -> float:
+        return 0.0
 
 
 # print(FB_cAction._having_pair(["3c", "Tc", "3c", "Aj", "Th"]))
