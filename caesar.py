@@ -3,13 +3,31 @@
 #######################################################################
 
 # =Imports
-import numpy as np
-
-# faster than my implementation
-from phevaluator import evaluate_cards
+from memorizer import Memorizer
+import enum
 
 
 class Caesar:
+    #################
+    #  SEE(s) ENUM  #
+    #################
+    class See(enum.Enum):
+        NEW_ROUND = (0,)
+        GAME_OVER = (1,)
+        PLAYER_CHIPS = (2,)
+        ANTE_CHANGED = (3,)
+        FORCED_BET = (4,)
+        PLAYER_OPEN = (5,)
+        PLAYER_CHECK = (6,)
+        PLAYER_RAISE = (7,)
+        PLAYER_CALL = (8,)
+        PLAYER_FOLD = (9,)
+        PLAYER_ALL_IN = (10,)
+        PLAYER_DRAW = (11,)
+        PLAYER_HAND = (12,)
+        ROUND_OVER_UNDISPUTED = (13,)
+        ROUND_OVER_DISPUTED = (14,)
+
     ############
     #  CONSTS  #
     ############
@@ -22,164 +40,60 @@ class Caesar:
     def name(self):
         return "Caesar"
 
-    ###################
-    #  Draw Strategy  #
-    ###################
-    # Hybrid optimized
-    # monte-carlo variation
-    def _mc_ev_draw(
-        self, hand: list, max_depth: int = 32, M: int = DRAW_MONTECARLO_SAMPLES_N
-    ) -> int:
-        # ======================
-        # = Discards scenarios =
-        # ======================
-        # for speed precomputed
-        # all scenarios
-        # Discard   0, 1, 2,  3, 4, 5
-        # C(n,r)    1, 5, 10,10, 5, 1
-        # TODO: convert into N with bitmasking / O(N)->O(1)
-        discards = np.array(
-            [
-                # discard 0
-                [0, 0, 0, 0, 0],
-                # discard 1 (5)
-                [1, 0, 0, 0, 0],
-                [0, 1, 0, 0, 0],
-                [0, 0, 1, 0, 0],
-                [0, 0, 0, 1, 0],
-                [0, 0, 0, 0, 1],
-                # discard 2 (10)
-                [1, 1, 0, 0, 0],
-                [1, 0, 1, 0, 0],
-                [1, 0, 0, 1, 0],
-                [1, 0, 0, 0, 1],
-                [0, 1, 1, 0, 0],
-                [0, 1, 0, 1, 0],
-                [0, 1, 0, 0, 1],
-                [0, 0, 1, 1, 0],
-                [0, 0, 1, 0, 1],
-                [0, 0, 0, 1, 1],
-                # discard 3 (10)
-                [1, 1, 1, 0, 0],
-                [1, 1, 0, 1, 0],
-                [1, 1, 0, 0, 1],
-                [1, 0, 0, 1, 1],
-                [1, 0, 1, 0, 1],
-                [1, 0, 1, 1, 0],
-                [0, 1, 1, 1, 0],
-                [0, 1, 0, 1, 1],
-                [0, 1, 1, 0, 1],
-                [0, 0, 1, 1, 1],
-                # discard 4 (5)
-                [1, 1, 1, 1, 0],
-                [1, 1, 1, 0, 1],
-                [1, 1, 0, 1, 1],
-                [1, 0, 1, 1, 1],
-                [0, 1, 1, 1, 1],
-                # discard 5 (1)
-                [1, 1, 1, 1, 1],
-            ]
-        )
-        # =======================
-        # = Monte Carlos G-Vars =
-        # =======================
-        mc_samples = np.empty((len(discards), M), dtype=object)
-        mc_betas = np.zeros((len(discards), M))
-        mc_beta_hats = np.zeros((len(discards)))
-        # ===============
-        # = Simulations =
-        # ===============
-        for idis in range(max_depth):
-            # ====================
-            # = Compute new hand =
-            # ====================
-            # compute hand with discards
-            # TODO: might wanna use numpy for performances
-            c_hand = []
-            c_ndiscards = 0
-            for i in range(len(hand)):
-                if not discards[idis][i]:
-                    c_hand.append(hand[i])  # better than copy+pop
-                else:
-                    c_ndiscards += 1  # cache this for later
-
-            # ===================================
-            # = Monte Carlo LRR with R-Sampling =
-            # ===================================
-            # add hybrid selection to reduce
-            # search space
-            for si in range(M):
-                # ========================
-                # = Compute replacements =
-                # ========================
-                c_hand_sample = [
-                    x if x not in ["10h", "10d", "10s", "10c"] else "T" + x[2]
-                    for x in c_hand
-                ]
-                # ============================
-                # = No discards Special Case =
-                # ============================
-                # TODO: update this with analytical statistics
-                #  no need ot waste cycles here
-                if c_ndiscards == 0:
-                    # compute directly current hand
-                    mc_samples[idis][si] = (c_hand_sample, idis)
-                    mc_betas[idis][si] = evaluate_cards(*c_hand_sample)
-                    continue
-                c_deck = self._build_new_deck(exclude=c_hand)
-                rng = np.random.default_rng()
-                sampled = rng.choice(c_deck, c_ndiscards, replace=False)
-                c_hand_sample.extend(sampled)
-                # print("evaluating: ", c_hand_sample)
-                # ================================
-                # = Monte Carlo Samples and Beta =
-                # ================================
-                mc_samples[idis][si] = (c_hand_sample, idis)
-                mc_betas[idis][si] = evaluate_cards(*c_hand_sample)
-            # ==============
-            # = Compute β̂ =
-            # ==============
-            mc_beta_hats[idis] = np.mean(mc_betas[idis])
-        # =========================
-        # = Compute best strategy =
-        # =========================
-        # TODO: Replace built-in sort with radix-sort
-        # TODO: Add bluffing as hybrid meta-metric
-        # print("mc: ", mc_beta_hats)
-        print("mc_betas: ", mc_betas)
-        s_idis = np.argsort(mc_beta_hats)
-        print("given hand: ", hand)
-        print("best strategy found: ", s_idis[0], discards[s_idis[0]])
-        print("min value found: ", min(mc_beta_hats))
-
-    #######################################################################
-    #                                Utils                                #
-    #######################################################################
-    def _build_new_deck(self, exclude: list) -> list:
-        suits = ["h", "d", "s", "c"]
-        ranks = ["2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K", "A"]
-        deck = [r + s for r in ranks for s in suits]
-        # for c in exclude:
-        #     deck.remove(c if c not in ["10h", "10d", "10s", "10c"] else "T" + c[2])
+    #################
+    #  Constructor  #
+    #################
+    def __init__(self, n_players: int = 5):
         # ==================
-        # = Faster exclude =
+        # = Game Specifics =
         # ==================
-        return self._fast_deck_update(deck, exclude)
+        self.gs_nplayers = n_players
 
-    def _fast_deck_update(self, deck, exclude) -> list:
-        return list(set(deck) - set(exclude))
+        # =============
+        # = Memorizer =
+        # =============
+        self.memorizer = Memorizer([], 0, log=True)
+        # ======================
+        # = Registered Players =
+        # ======================
+        self.registered_players = dict()
 
+    #########
+    #  SEE  #
+    #########
+    def see(self, what: See, *args) -> None:
+        print("what", what, args)
+        gateway = {
+            self.See.NEW_ROUND: self.memorizer.new_round,
+            self.See.GAME_OVER: self.memorizer.game_over,
+            self.See.PLAYER_CHIPS: self._player_chips_update,
+            self.See.ANTE_CHANGED: self.memorizer.update_ante,
+            self.See.FORCED_BET: self.memorizer.forced_bet,
+            self.See.PLAYER_OPEN: self.memorizer.open,
+            self.See.PLAYER_CHECK: self.memorizer.check,
+            self.See.PLAYER_RAISE: self.memorizer.raise_to,
+            self.See.PLAYER_CALL: self.memorizer.call,
+            self.See.PLAYER_FOLD: self.memorizer.fold,
+            self.See.PLAYER_ALL_IN: self.memorizer.all_in,
+            self.See.PLAYER_DRAW: self.memorizer.draw,
+            self.See.PLAYER_HAND: self.memorizer.hand_revealed,
+            self.See.ROUND_OVER_UNDISPUTED: self.memorizer.round_over,
+            self.See.ROUND_OVER_DISPUTED: self.memorizer.round_over,
+        }
+        if what == self.See.NEW_ROUND and args[0] < 2:
+            return
+        return gateway.get(what, "Error: not found")(*args)
 
-#######################################################################
-#                   ONLY FOR TESTING AND DEBUGGING                    #
-#######################################################################
-c = Caesar()
-import time
-
-start = time.time()
-m = c._mc_ev_draw(hand=["4h", "5s", "8c", "Ad", "As"], M=500)
-end = time.time()
-print("TOOK: ", end - start)
-# hand = ["Qs", "8s", "Js", "Qc", "Ks"]
-# ndeck = c._build_new_deck(exclude=hand)
-# print("deck:, ", ndeck, len(ndeck))
+    # ===========================
+    # = To patch initial config =
+    # ===========================
+    def _player_chips_update(self, player, chips) -> None:
+        if len(self.memorizer.rounds) < 1:
+            self.registered_players[player] = chips
+            if len(self.registered_players.keys()) == self.gs_nplayers:
+                self.memorizer.o_names = list(self.registered_players.keys())
+                self.memorizer.new_round(1)
+                for _player, _chips in self.registered_players.items():
+                    self.memorizer.update_player_chips(_player, int(_chips))
+        else:
+            self.memorizer.update_player_chips(player, int(chips))

@@ -1,6 +1,6 @@
 import socket
 
-from client_driver import PokerGames
+from client_driver import PokerGame
 import client_driver
 from game_config import Network
 
@@ -15,11 +15,11 @@ CURRENT_HAND = []
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((Network.SERVER_TCP_IP, Network.SERVER_TCP_PORT))
 
-infoAgent = PokerGames()
+infoAgent = PokerGame()
 MsgFractions = []
 
 GAME_ON = True
-POKER_CLIENT_NAME = client_driver.agent.name
+POKER_CLIENT_NAME = infoAgent.agent.name
 
 while GAME_ON:
 
@@ -55,7 +55,7 @@ while GAME_ON:
                 s.send(
                     (
                         "Name "
-                        + client_driver.queryPlayerName(client_driver.agent.name)
+                        + client_driver.queryPlayerName(PokerGame.agent.name)
                         + "\n"
                     ).encode()
                 )

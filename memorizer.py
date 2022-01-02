@@ -56,7 +56,7 @@ class Memorizer:
     # ================
     # = Player Check =
     # ================
-    def check(self, player: str, chips: int) -> None:
+    def check(self, player: str, chips: int = -1) -> None:
         self.rounds[self.current_round].opponents[player].check(chips)
 
     # ================
