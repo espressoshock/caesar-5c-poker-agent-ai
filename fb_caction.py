@@ -122,6 +122,24 @@ class FB_cAction:
 
         return None  # no pairs
 
+    @staticmethod
+    def get_4ok(hand: list) -> str:
+        values = dict(zip("23456789TJQKA", range(2, 15)))
+
+        def sortkey(x):
+            value, suit = x
+            return values[value], suit
+
+        srt = sorted(hand, key=sortkey, reverse=True)
+        prev = ""
+        for c in srt:
+            if c[0] == prev:
+                return c[0]
+            else:
+                prev = c[0]
+
+        return None  # no pairs
+
     #######################################################################
     #                         Losing probability                          #
     #######################################################################
@@ -292,13 +310,40 @@ class FB_cAction:
             + FB_cAction.HandRanks.ROYAL_FLUSH.value[1]
         )
 
+    @staticmethod
+    def _having_4ok(hand: list) -> float:
+        print("given: ", hand)
+        # ==========
+        # = Params =
+        # ==========
+        fok = FB_cAction.get_4ok(hand)
+        all_comb = math.comb(52, 5)
+
+        # =========
+        # = Cases =
+        # =========
+        def _diffs(x):
+            diffs = dict(zip("AKQJT98765432", range(0, 13)))
+            value, suit = x
+            return diffs[value]
+
+        better_4ok = (_diffs(fok + "x") * 12 * 4) / all_comb
+
+        return (
+            +better_4ok
+            + FB_cAction.HandRanks.STRAIGHT_FLUSH.value[1]
+            + FB_cAction.HandRanks.ROYAL_FLUSH.value[1]
+        )
+
 
 # print(FB_cAction._having_pair(["3c", "Tc", "3c", "Aj", "Th"]))
 # print(FB_cAction._having_pair(["2c", "5s", "5s", "8j", "Th"]))
 # print(FB_cAction._having_2pair(["2c", "5s", "5s", "2j", "Th"]))
 # print(FB_cAction._having_3ok(["2c", "Ts", "3s", "Tc", "Th"]))
+print(FB_cAction._having_4ok(["5c", "5s", "5d", "5h", "Th"]))
 # print(FB_cAction._having_straight(["3c", "4s", "5s", "6c", "7h"]))
-print(FB_cAction._having_full_house(["Tc", "4s", "Ts", "4c", "Th"]))
+# print(FB_cAction._having_full_house(["Tc", "4s", "Ts", "4c", "Th"]))
 # print(FB_cAction.get_pair(["3c", "Tc", "3c", "As", "Th"]))
 # print(FB_cAction.get_pairs(["3c", "Tc", "3c", "Tc", "Th"]))
 # print(FB_cAction.get_3ok(["2d", "Ts", "3s", "Tc", "Th"]))
+# print(FB_cAction.get_4ok(["5c", "5s", "5d", "5h", "Th"]))
