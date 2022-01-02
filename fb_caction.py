@@ -227,11 +227,41 @@ class FB_cAction:
             + FB_cAction.HandRanks.ROYAL_FLUSH.value[1]
         )
 
+    @staticmethod
+    def _having_straight(hand: list) -> float:
+        print("given: ", hand)
+        # ==========
+        # = Params =
+        # ==========
+        max_card = FB_cAction.get_max(hand)
+        all_comb = math.comb(52, 5)
+        print("max: ", max_card)
+
+        # =========
+        # = Cases =
+        # =========
+        def _diffs(x):
+            diffs = dict(zip("AKQJT98765432", range(0, 13)))
+            value, suit = x
+            return diffs[value]
+
+        better_straight = ((_diffs(max_card) * (4 ** 5)) - (10 * 4)) / all_comb
+
+        return (
+            +better_straight
+            + FB_cAction.HandRanks.FLUSH.value[1]
+            + FB_cAction.HandRanks.FULL_HOUSE.value[1]
+            + FB_cAction.HandRanks.FOUR_OF_A_KIND.value[1]
+            + FB_cAction.HandRanks.STRAIGHT_FLUSH.value[1]
+            + FB_cAction.HandRanks.ROYAL_FLUSH.value[1]
+        )
+
 
 # print(FB_cAction._having_pair(["3c", "Tc", "3c", "Aj", "Th"]))
 # print(FB_cAction._having_pair(["2c", "5s", "5s", "8j", "Th"]))
 # print(FB_cAction._having_2pair(["2c", "5s", "5s", "2j", "Th"]))
-print(FB_cAction._having_3ok(["2c", "Ts", "3s", "Tc", "Th"]))
+# print(FB_cAction._having_3ok(["2c", "Ts", "3s", "Tc", "Th"]))
+print(FB_cAction._having_straight(["3c", "4s", "5s", "6c", "7h"]))
 # print(FB_cAction.get_pair(["3c", "Tc", "3c", "As", "Th"]))
 # print(FB_cAction.get_pairs(["3c", "Tc", "3c", "Tc", "Th"]))
 # print(FB_cAction.get_3ok(["2d", "Ts", "3s", "Tc", "Th"]))
