@@ -140,9 +140,47 @@ class FB_cAction:
 
         return None  # no pairs
 
+    @staticmethod
+    def get_sorted_hand(hand: list) -> list:
+        values = dict(zip("23456789TJQKA", range(2, 15)))
+
+        def sortkey(x):
+            value, suit = x
+            return values[value], suit
+
+        return sorted(hand, key=sortkey, reverse=True)
+
     #######################################################################
     #                         Losing probability                          #
     #######################################################################
+    # =========================
+    # = High hand v High Hand =
+    # =========================
+    # E[x]
+    @staticmethod
+    def _high_v_high(hand: list) -> float:
+        # ==========
+        # = Params =
+        # ==========
+        s_hand = FB_cAction.get_sorted_hand(hand)
+        all_comb = math.comb(52, 5)
+
+        # =========
+        # = Cases =
+        # =========
+        def _diffs(x):
+            diffs = dict(zip("AKQJT98765432", range(0, 13)))
+            value, suit = x
+            return diffs[value]
+
+        return (
+            (_diffs(s_hand[0]) * 4)
+            + (_diffs(s_hand[1]) * 4)
+            + (_diffs(s_hand[2]) * 4)
+            + (_diffs(s_hand[3]) * 4)
+            + (_diffs(s_hand[4]) * 4)
+        ) / all_comb
+
     # =================
     # = Having a Pair =
     # =================
@@ -289,8 +327,34 @@ class FB_cAction:
     # ==================
     # = Having a Flush =
     # ==================
-    # TODO: Implement Flush
-    ####################
+    @staticmethod
+    def _having_flush(hand: list) -> float:
+        print("given: ", hand)
+        # ==========
+        # = Params =
+        # ==========
+        s_hand = FB_cAction.get_sorted_hand(hand)
+        all_comb = math.comb(52, 5)
+
+        # =========
+        # = Cases =
+        # =========
+        def _diffs(x):
+            diffs = dict(zip("AKQJT98765432", range(0, 13)))
+            value, suit = x
+            return diffs[value]
+
+        better_flush = ((_diffs(s_hand[0]) * 4 ** 5) - (10 * 4)) / all_comb
+        higher = FB_cAction._high_v_high(s_hand)
+
+        return (
+            better_flush
+            + higher
+            + FB_cAction.HandRanks.FULL_HOUSE.value[1]
+            + +FB_cAction.HandRanks.FOUR_OF_A_KIND.value[1]
+            + FB_cAction.HandRanks.STRAIGHT_FLUSH.value[1]
+            + FB_cAction.HandRanks.ROYAL_FLUSH.value[1]
+        )
 
     # =====================
     # = Having full house =
@@ -396,7 +460,9 @@ class FB_cAction:
 # print(FB_cAction._having_4ok(["5c", "5s", "5d", "5h", "Th"]))
 # print(FB_cAction._having_straight(["3c", "4s", "5s", "6c", "7h"]))
 # print(FB_cAction._having_full_house(["Tc", "4s", "Ts", "4c", "Th"]))
-print(FB_cAction._having_straight_flush(["5c", "6c", "7c", "8c", "9h"]))
+# print(FB_cAction._having_straight_flush(["5c", "6c", "7c", "8c", "9h"]))
+# print(FB_cAction._high_v_high(["5c", "6c", "7c", "8c", "9h"]))
+# print(FB_cAction._having_flush(["2c", "Qc", "7c", "8c", "9c"]))
 # print(FB_cAction.get_pair(["3c", "Tc", "3c", "As", "Th"]))
 # print(FB_cAction.get_pairs(["3c", "Tc", "3c", "Tc", "Th"]))
 # print(FB_cAction.get_3ok(["2d", "Ts", "3s", "Tc", "Th"]))
