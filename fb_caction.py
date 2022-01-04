@@ -6,6 +6,9 @@
 import enum
 import math
 
+# faster than my implementation
+from phevaluator import evaluate_cards as evc
+
 
 class FB_cAction:
     #######################
@@ -25,6 +28,30 @@ class FB_cAction:
         TWO_PAIR = (3325, 0.0475390156)
         PAIR = (6185, -1)  # don't play this
         HIGH_CARD = (7462, -1)
+
+    ###################
+    #  Gateway proxy  #
+    ###################
+    @staticmethod
+    def describe(hand: list) -> dict:
+        gateway = {
+            FB_cAction.HandRanks.PAIR: FB_cAction._having_pair,
+            FB_cAction.HandRanks.TWO_PAIR: FB_cAction._having_2pair,
+            FB_cAction.HandRanks.THREE_OF_A_KIND: FB_cAction._having_3ok,
+            FB_cAction.HandRanks.STRAIGHT: FB_cAction._having_straight,
+            FB_cAction.HandRanks.FLUSH: FB_cAction._having_flush,
+            FB_cAction.HandRanks.FULL_HOUSE: FB_cAction._having_full_house,
+            FB_cAction.HandRanks.FOUR_OF_A_KIND: FB_cAction._having_4ok,
+            FB_cAction.HandRanks.STRAIGHT_FLUSH: FB_cAction._having_straight_flush,
+            FB_cAction.HandRanks.ROYAL_FLUSH: FB_cAction._having_royal_flush,
+        }
+        # =======================
+        # = Return context loss =
+        # =======================
+        return {
+            "loss": gateway.get(FB_cAction.hand_value(evc(*hand)), -1)(hand),
+            "win": 1 - gateway.get(FB_cAction.hand_value(evc(*hand)), -1)(hand),
+        }
 
     #######################################################################
     #                                Utils                                #
@@ -467,3 +494,6 @@ class FB_cAction:
 # print(FB_cAction.get_pairs(["3c", "Tc", "3c", "Tc", "Th"]))
 # print(FB_cAction.get_3ok(["2d", "Ts", "3s", "Tc", "Th"]))
 # print(FB_cAction.get_4ok(["5c", "5s", "5d", "5h", "Th"]))
+
+# print(FB_cAction._having_flush(["2c", "Qc", "7c", "8c", "9c"]))
+# print(FB_cAction.describe(["2c", "Qc", "7c", "8c", "9c"]))
