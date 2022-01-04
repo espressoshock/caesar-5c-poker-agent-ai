@@ -1,6 +1,6 @@
 import socket
 
-from client_driver import PokerGames
+from client_driver import PokerGame
 import client_driver
 from game_config import Network
 
@@ -15,11 +15,11 @@ CURRENT_HAND = []
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((Network.SERVER_TCP_IP, Network.SERVER_TCP_PORT))
 
-infoAgent = PokerGames()
+infoAgent = PokerGame()
 MsgFractions = []
 
 GAME_ON = True
-POKER_CLIENT_NAME = client_driver.agent.name
+POKER_CLIENT_NAME = infoAgent.agent.name
 
 while GAME_ON:
 
@@ -55,7 +55,7 @@ while GAME_ON:
                 s.send(
                     (
                         "Name "
-                        + client_driver.queryPlayerName(client_driver.agent.name)
+                        + client_driver.queryPlayerName(PokerGame.agent.name)
                         + "\n"
                     ).encode()
                 )
@@ -73,7 +73,7 @@ while GAME_ON:
                     # SMART end
                 else:
                     client_driver.infoPlayerChips(
-                        name, MsgFractions.pop(0).decode("ascii")
+                        name, int(MsgFractions.pop(0).decode("ascii"))
                     )
 
             # "Ante_Changed"
@@ -96,7 +96,7 @@ while GAME_ON:
                     )
                 else:
                     client_driver.infoForcedBet(
-                        name, MsgFractions.pop(0).decode("ascii")
+                        name, int(MsgFractions.pop(0).decode("ascii"))
                     )
 
             # "Open?"
@@ -143,14 +143,14 @@ while GAME_ON:
                 # print('CurrentHand>', infoAgent.CurrentHand)
             elif RequestType == "Draw?":
                 discardCards = client_driver.queryCardsToThrow(infoAgent.CurrentHand)
-                s.send(("Throws " + discardCards + "\n").encode())
-                print(POKER_CLIENT_NAME + " Action>" + "Throws " + discardCards)
+                s.send(("Throws " + str(discardCards) + "\n").encode())
+                print(POKER_CLIENT_NAME + " Action>" + "Throws " + str(discardCards))
 
             # "Round"
             # /** Sent from server to clients when a new round begins.
             # * Append space and the round number after this string. */
             elif RequestType == "Round":
-                client_driver.infoNewRound(MsgFractions.pop(0).decode("ascii"))
+                client_driver.infoNewRound(int(MsgFractions.pop(0).decode("ascii")))
 
             # "Game_Over"
             # /** Sent from server to clients when the game is completed. */
@@ -165,7 +165,7 @@ while GAME_ON:
             elif RequestType == "Player_Open":
                 client_driver.infoPlayerOpen(
                     MsgFractions.pop(0).decode("ascii"),
-                    MsgFractions.pop(0).decode("ascii"),
+                    int(MsgFractions.pop(0).decode("ascii")),
                 )
 
             # "Player_Check"
@@ -180,7 +180,7 @@ while GAME_ON:
             elif RequestType == "Player_Raise":
                 client_driver.infoPlayerRise(
                     MsgFractions.pop(0).decode("ascii"),
-                    MsgFractions.pop(0).decode("ascii"),
+                    int(MsgFractions.pop(0).decode("ascii")),
                 )
 
             # "Player_Call"
@@ -201,7 +201,7 @@ while GAME_ON:
             elif RequestType == "Player_All-in":
                 client_driver.infoPlayerAllIn(
                     MsgFractions.pop(0).decode("ascii"),
-                    MsgFractions.pop(0).decode("ascii"),
+                    int(MsgFractions.pop(0).decode("ascii")),
                 )
 
             # "Player_Draw"
@@ -210,7 +210,7 @@ while GAME_ON:
             elif RequestType == "Player_Draw":
                 client_driver.infoPlayerDraw(
                     MsgFractions.pop(0).decode("ascii"),
-                    MsgFractions.pop(0).decode("ascii"),
+                    int(MsgFractions.pop(0).decode("ascii")),
                 )
 
             # "Round_Win_Undisputed"
@@ -220,7 +220,7 @@ while GAME_ON:
                 print(SIGNAL_END)
                 client_driver.infoRoundUndisputedWin(
                     MsgFractions.pop(0).decode("ascii"),
-                    MsgFractions.pop(0).decode("ascii"),
+                    int(MsgFractions.pop(0).decode("ascii")),
                 )
 
             # "Round_result"
@@ -230,7 +230,7 @@ while GAME_ON:
                 print(SIGNAL_END)
                 client_driver.infoRoundResult(
                     MsgFractions.pop(0).decode("ascii"),
-                    MsgFractions.pop(0).decode("ascii"),
+                    int(MsgFractions.pop(0).decode("ascii")),
                 )
 
             # "Player_Hand"
