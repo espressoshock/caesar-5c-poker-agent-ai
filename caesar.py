@@ -146,12 +146,10 @@ class Caesar:
         #    .hand
         # )
 
-        hand = self.hand
-        print("c hand:", hand)
         # ========
         # = Odds =
         # ========
-        odds = FB_cAction.describe(hand)
+        odds = FB_cAction.describe(self.hand)
         print("\n******************************************")
         print("current odds: ", odds)
         print("min_pot, c_bet: ", min_pot, c_bet)
@@ -162,8 +160,10 @@ class Caesar:
         # ==========
         if odds["loss"] > 0.50 and (c_bet / r_chips) < 0.5:
             return AgentAction.CHECK
-        if c_bet + r_chips < min_pot:
-            return AgentAction.CHECK
+
+        # TODO: check this
+        # if c_bet + r_chips < min_pot:
+        #    return AgentAction.CHECK
 
         if r_chips < min_pot:
             return AgentAction.CHECK
@@ -186,9 +186,6 @@ class Caesar:
         #    .opponents[self.name]
         #    .hand
         # )
-        hand = self.hand
-        print("c hand:", hand)
-
         # ========
         # = Odds =
         # ========
