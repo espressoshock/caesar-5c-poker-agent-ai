@@ -49,15 +49,13 @@ def queryPlayerName(_name: str) -> str:
 #################
 # Called during open phase
 def queryOpenAction(_minimumPotAfterOpen, _playersCurrentBet, _playersRemainingChips):
-
-    a = PokerGame.agent.act(
+    print("---->:open invoked")
+    return PokerGame.agent.act(
         Caesar.Act.OPEN,
         _minimumPotAfterOpen,
         _playersCurrentBet,
         _playersRemainingChips,
     )
-    print("@@Cesar action open: ", a)
-    return a
 
 
 ################
@@ -67,16 +65,14 @@ def queryOpenAction(_minimumPotAfterOpen, _playersCurrentBet, _playersRemainingC
 def queryCallRaiseAction(
     _maximumBet, _minimumAmountToRaiseTo, _playersCurrentBet, _playersRemainingChips
 ):
-    print("---->:cooor invoked")
-    a = PokerGame.agent.act(
+    print("---->:cor invoked")
+    return PokerGame.agent.act(
         Caesar.Act.CALL_OR_RAISE,
         _maximumBet,
         _minimumAmountToRaiseTo,
         _playersCurrentBet,
         _playersRemainingChips,
     )
-    print("@@Cesar action cor: ", a)
-    return a
 
 
 ##########

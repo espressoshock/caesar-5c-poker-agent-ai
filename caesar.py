@@ -97,7 +97,9 @@ class Caesar:
             self.See.ROUND_OVER_DISPUTED: self.memorizer.round_over,
         }
         if what == self.See.PLAYER_HAND and args[0] == self.name:
-            print("==================(myhand)", args[1])
+            print("******************************************")
+            print("current hand:", args[1])
+            print("******************************************")
 
         if what == self.See.NEW_ROUND and args[0] < 2:
             return
@@ -150,8 +152,11 @@ class Caesar:
         # = Odds =
         # ========
         odds = FB_cAction.describe(hand)
-        print("!!!!!!!!!!!!!!!!!!!!!!!!!current odds: ", odds)
-        print("!!!!!!!!!!!!!!!!!!!!!!!!!chech me ", min_pot, c_bet)
+        print("/n******************************************")
+        print("******************************************")
+        print("current odds: ", odds)
+        print("min_pot, c_bet: ", min_pot, c_bet)
+        print("/n******************************************")
 
         # ==========
         # = Policy =
@@ -168,7 +173,7 @@ class Caesar:
             return (AgentAction.OPEN, min_pot + 1)
         else:
             rdiff = r_chips - min_pot
-            rbudget = 0.8 * rdiff if (0.8 * rdiff) > min_pot else rdiff
+            rbudget = 0.85 * rdiff if (0.85 * rdiff) > min_pot else rdiff
             bet = int(np.interp(odds["win"], [0, 1], [0, rbudget]))
 
         return (AgentAction.OPEN, min_pot + bet)
@@ -189,8 +194,10 @@ class Caesar:
         # = Odds =
         # ========
         odds = FB_cAction.describe(self.hand)
-        print("!!!!!!!!!!!!!!!!!!!!!!!!!current odds: ", odds)
-        print("!!!!!!!!!!!!!!!!!!!!!!!!!chech me ", min_raise, c_bet)
+        print("/n******************************************")
+        print("current odds: ", odds)
+        print("min_pot, c_bet: ", min_raise, c_bet)
+        print("/n******************************************")
 
         # ==========
         # = Policy =
@@ -213,7 +220,7 @@ class Caesar:
             return (AgentAction.RAISE, min_raise + 1)
         else:
             rdiff = r_chips - min_raise
-            rbudget = 0.8 * rdiff if (0.8 * rdiff) > min_raise else rdiff
+            rbudget = 0.85 * rdiff if (0.85 * rdiff) > min_raise else rdiff
             bet = int(np.interp(odds["win"], [0, 1], [0, rbudget]))
 
         return (AgentAction.RAISE, min_raise + bet)
