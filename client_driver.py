@@ -49,26 +49,15 @@ def queryPlayerName(_name: str) -> str:
 #################
 # Called during open phase
 def queryOpenAction(_minimumPotAfterOpen, _playersCurrentBet, _playersRemainingChips):
-    import random
 
-    # Random action
-    # replace me
-    def chooseOpenOrCheck():
-        if _playersCurrentBet + _playersRemainingChips > _minimumPotAfterOpen:
-            # return ClientBase.BettingAnswer.ACTION_OPEN,  iOpenBet
-            return (
-                AgentAction.OPEN,
-                (random.randint(0, 10) + _minimumPotAfterOpen)
-                if _playersCurrentBet + _playersRemainingChips + 10
-                > _minimumPotAfterOpen
-                else _minimumPotAfterOpen,
-            )
-        else:
-            return AgentAction.CHECK
-
-    return {0: AgentAction.CHECK, 1: AgentAction.CHECK}.get(
-        random.randint(0, 2), chooseOpenOrCheck()
+    a = PokerGame.agent.act(
+        Caesar.Act.OPEN,
+        _minimumPotAfterOpen,
+        _playersCurrentBet,
+        _playersRemainingChips,
     )
+    print("@@Cesar action open: ", a)
+    return a
 
 
 ################
@@ -78,29 +67,16 @@ def queryOpenAction(_minimumPotAfterOpen, _playersCurrentBet, _playersRemainingC
 def queryCallRaiseAction(
     _maximumBet, _minimumAmountToRaiseTo, _playersCurrentBet, _playersRemainingChips
 ):
-    import random
-
-    # random actino replace me
-    def chooseRaiseOrFold():
-        if _playersCurrentBet + _playersRemainingChips > _minimumAmountToRaiseTo:
-            return (
-                AgentAction.RAISE,
-                (random.randint(0, 10) + _minimumAmountToRaiseTo)
-                if _playersCurrentBet + _playersRemainingChips + 10
-                > _minimumAmountToRaiseTo
-                else _minimumAmountToRaiseTo,
-            )
-        else:
-            return AgentAction.FOLD
-
-    return {
-        0: AgentAction.FOLD,
-        # 1: ClientBase.BettingAnswer.ACTION_ALLIN,
-        1: AgentAction.FOLD,
-        2: AgentAction.CALL
-        if _playersCurrentBet + _playersRemainingChips > _maximumBet
-        else AgentAction.FOLD,
-    }.get(random.randint(0, 3), chooseRaiseOrFold())
+    print("---->:cooor invoked")
+    a = PokerGame.agent.act(
+        Caesar.Act.CALL_OR_RAISE,
+        _maximumBet,
+        _minimumAmountToRaiseTo,
+        _playersCurrentBet,
+        _playersRemainingChips,
+    )
+    print("@@Cesar action cor: ", a)
+    return a
 
 
 ##########

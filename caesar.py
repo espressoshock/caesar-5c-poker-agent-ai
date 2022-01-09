@@ -72,7 +72,7 @@ class Caesar:
         # ================
         # = Current hand =
         # ================
-        hand = []
+        self.hand = []
 
     #######################################################################
     #                               SEE(s)                                #
@@ -96,6 +96,9 @@ class Caesar:
             self.See.ROUND_OVER_UNDISPUTED: self.memorizer.round_over,
             self.See.ROUND_OVER_DISPUTED: self.memorizer.round_over,
         }
+        if what == self.See.PLAYER_HAND and args[0] == self.name:
+            print("==================(myhand)", args[1])
+
         if what == self.See.NEW_ROUND and args[0] < 2:
             return
         if what == self.See.PLAYER_HAND and args[0] == self.name:
@@ -149,7 +152,7 @@ class Caesar:
         # ==========
         # = Policy =
         # ==========
-        if odds["loss"] > 50:
+        if odds["loss"] > 0.50:
             return AgentAction.CHECK
         if c_bet + r_chips < min_pot:
             return AgentAction.CHECK
@@ -175,23 +178,22 @@ class Caesar:
         # = Odds =
         # ========
         odds = FB_cAction.describe(self.hand)
-        print("!!current odds: ", odds)
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!current odds: ", odds)
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!chech me ", min_raise, c_bet)
 
         # ==========
         # = Policy =
         # ==========
-        if odds["loss"] > 50:
+        if odds["loss"] > 0.50:
             return AgentAction.FOLD
-        if c_bet + r_chips > min_raise:
-            return AgentAction.FOLD
+        # TODO: check this
+        # if c_bet + r_chips < min_raise:
+        #    return AgentAction.FOLD
 
         if odds["loss"] == 0:
             return AgentAction.ALLIN
-        if odds["win"] < 70:
+        if odds["win"] < 0.70:
             return AgentAction.CALL
-
-        if c_bet + r_chips > min_raise:
-            return AgentAction.FOLD
 
         rdiff = r_chips - min_raise
         bet = int(np.interp(odds["win"], [0, 1], [0, rdiff]))

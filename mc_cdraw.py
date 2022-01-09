@@ -23,7 +23,14 @@ class MC_CDraw:
     @staticmethod
     def mc_ev_draw(
         hand: list, max_depth: int = 32, M: int = DRAW_MONTECARLO_SAMPLES_N
-    ) -> int:
+    ) -> list:
+        # =============
+        # = SAFE Code =
+        # =============
+        # give royal flush
+        # if evaluate_cards(*hand) == 1:
+        #    return list()
+
         # ======================
         # = Discards scenarios =
         # ======================
