@@ -45,6 +45,11 @@ class FB_cAction:
             FB_cAction.HandRanks.STRAIGHT_FLUSH: FB_cAction._having_straight_flush,
             FB_cAction.HandRanks.ROYAL_FLUSH: FB_cAction._having_royal_flush,
         }
+        # =========================================
+        # = Don't play this, just safe check here =
+        # =========================================
+        if FB_cAction.hand_value(evc(*hand)) == FB_cAction.HandRanks.HIGH_CARD:
+            return {"loss": 1, "win": 0}
         # =======================
         # = Return context loss =
         # =======================
@@ -197,7 +202,10 @@ class FB_cAction:
         # =========
         def _diffs(x):
             diffs = dict(zip("AKQJT98765432", range(0, 13)))
-            value, suit = x
+            if len(x) > 1:
+                value, suit = x
+            else:
+                value = x
             return diffs[value]
 
         return (
@@ -225,7 +233,10 @@ class FB_cAction:
         # =========
         def _diffs(x):
             diffs = dict(zip("AKQJT98765432", range(0, 13)))
-            value, suit = x
+            if len(x) > 1:
+                value, suit = x
+            else:
+                value = x
             return diffs[value]
 
         ncr42 = math.comb(4, 2)
@@ -265,7 +276,10 @@ class FB_cAction:
         # =========
         def _diffs(x):
             diffs = dict(zip("AKQJT98765432", range(0, 13)))
-            value, suit = x
+            if len(x) > 1:
+                value, suit = x
+            else:
+                value = x
             return diffs[value]
 
         ncr42 = math.comb(4, 2)
@@ -302,7 +316,10 @@ class FB_cAction:
         # =========
         def _diffs(x):
             diffs = dict(zip("AKQJT98765432", range(0, 13)))
-            value, suit = x
+            if len(x) > 1:
+                value, suit = x
+            else:
+                value = x
             return diffs[value]
 
         ncr43 = math.comb(4, 3)
@@ -337,7 +354,10 @@ class FB_cAction:
         # =========
         def _diffs(x):
             diffs = dict(zip("AKQJT98765432", range(0, 13)))
-            value, suit = x
+            if len(x) > 1:
+                value, suit = x
+            else:
+                value = x
             return diffs[value]
 
         better_straight = ((_diffs(max_card) * (4 ** 5)) - (10 * 4)) / all_comb
@@ -368,7 +388,10 @@ class FB_cAction:
         # =========
         def _diffs(x):
             diffs = dict(zip("AKQJT98765432", range(0, 13)))
-            value, suit = x
+            if len(x) > 1:
+                value, suit = x
+            else:
+                value = x
             return diffs[value]
 
         better_flush = ((_diffs(s_hand[0]) * 4 ** 5) - (10 * 4)) / all_comb
@@ -404,7 +427,10 @@ class FB_cAction:
         # =========
         def _diffs(x):
             diffs = dict(zip("AKQJT98765432", range(0, 13)))
-            value, suit = x
+            if len(x) > 1:
+                value, suit = x
+            else:
+                value = x
             return diffs[value]
 
         ncr43 = math.comb(4, 3)
@@ -437,7 +463,10 @@ class FB_cAction:
         # =========
         def _diffs(x):
             diffs = dict(zip("AKQJT98765432", range(0, 13)))
-            value, suit = x
+            if len(x) > 1:
+                value, suit = x
+            else:
+                value = x
             return diffs[value]
 
         better_4ok = (_diffs(fok + "x") * 12 * 4) / all_comb
@@ -465,7 +494,10 @@ class FB_cAction:
         # =========
         def _diffs(x):
             diffs = dict(zip("AKQJT98765432", range(0, 13)))
-            value, suit = x
+            if len(x) > 1:
+                value, suit = x
+            else:
+                value = x
             return diffs[value]
 
         better_straight_flush = (_diffs(max_card) * 4) / all_comb
@@ -497,3 +529,4 @@ class FB_cAction:
 
 # print(FB_cAction._having_flush(["2c", "Qc", "7c", "8c", "9c"]))
 # print(FB_cAction.describe(["2c", "Qc", "7c", "8c", "9c"]))
+# print(FB_cAction.describe(["2s", "2d", "Th", "9d", "7d"]))
