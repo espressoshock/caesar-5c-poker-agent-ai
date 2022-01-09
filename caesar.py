@@ -5,7 +5,10 @@
 # =Imports
 from memorizer import Memorizer
 from mc_cdraw import MC_CDraw
+from fb_caction import FB_cAction
+from game_config import AgentAction
 import enum
+import numpy as np
 
 
 class Caesar:
@@ -66,6 +69,10 @@ class Caesar:
         # = Registered Players =
         # ======================
         self.registered_players = dict()
+        # ================
+        # = Current hand =
+        # ================
+        hand = []
 
     #######################################################################
     #                               SEE(s)                                #
@@ -91,6 +98,8 @@ class Caesar:
         }
         if what == self.See.NEW_ROUND and args[0] < 2:
             return
+        if what == self.See.PLAYER_HAND and args[0] == self.name:
+            self.hand = args[1]
         return gateway.get(what, "Error: what not found")(*args)
 
     # ===========================
@@ -113,8 +122,8 @@ class Caesar:
     def act(self, how: Act, *args) -> None:
         print("how", how, args)
         gateway = {
-            self.Act.OPEN: None,
-            self.Act.CALL_OR_RAISE: None,
+            self.Act.OPEN: self.open,
+            self.Act.CALL_OR_RAISE: self.cor,
             self.Act.DRAW: self.draw,
         }
         return gateway.get(how, "Error: how not found")(*args)
@@ -122,12 +131,76 @@ class Caesar:
     # =====================
     # = Inner Caesar acts =
     # =====================
-    def open(self, *args) -> None:
-        pass
+    def open(self, min_pot, c_bet, r_chips):
+        # hand = (
+        #    self.memorizer.rounds[self.memorizer.current_round]
+        #    .opponents[self.name]
+        #    .hand
+        # )
+
+        hand = self.hand
+        print("c hand:", hand)
+        # ========
+        # = Odds =
+        # ========
+        odds = FB_cAction.describe(hand)
+        print("!!current odds: ", odds)
+
+        # ==========
+        # = Policy =
+        # ==========
+        if odds["loss"] > 50:
+            return AgentAction.CHECK
+        if c_bet + r_chips < min_pot:
+            return AgentAction.CHECK
+
+        rdiff = r_chips - min_pot
+        bet = int(np.interp(odds["win"], [0, 1], [0, rdiff]))
+
+        return (AgentAction.OPEN, min_pot + bet)
+
+    # =================
+    # = Call or Raise =
+    # =================
+    def cor(self, max_bet, min_raise, c_bet, r_chips):
+        # hand = (
+        #    self.memorizer.rounds[self.memorizer.current_round]
+        #    .opponents[self.name]
+        #    .hand
+        # )
+        hand = self.hand
+        print("c hand:", hand)
+
+        # ========
+        # = Odds =
+        # ========
+        odds = FB_cAction.describe(self.hand)
+        print("!!current odds: ", odds)
+
+        # ==========
+        # = Policy =
+        # ==========
+        if odds["loss"] > 50:
+            return AgentAction.FOLD
+        if c_bet + r_chips > min_raise:
+            return AgentAction.FOLD
+
+        if odds["loss"] == 0:
+            return AgentAction.ALLIN
+        if odds["win"] < 70:
+            return AgentAction.CALL
+
+        if c_bet + r_chips > min_raise:
+            return AgentAction.FOLD
+
+        rdiff = r_chips - min_raise
+        bet = int(np.interp(odds["win"], [0, 1], [0, rdiff]))
+
+        return (AgentAction.RAISE, min_raise + bet)
 
     # ========
     # = Draw =
     # ========
-    def draw(self, hand: list) -> list:
+    def draw(self, hand: list) -> str:
         print("given hand: ", hand)
-        return " ".join(MC_CDraw.mc_ev_draw(hand=hand, M=500, max_depth=32)[1])
+        return " ".join(MC_CDraw.mc_ev_draw(hand=hand, M=300, max_depth=32)[1])
