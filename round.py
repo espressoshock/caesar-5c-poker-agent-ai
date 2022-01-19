@@ -39,6 +39,32 @@ class Round:
         # showdown
         self.results = None
 
+        # ============
+        # = Pot size =
+        # ============
+        # Better cache
+        # than retrieve
+        self.pot = 0
+        self.c_call = 0
+
+    # ===================
+    # = Update Pot size =
+    # ===================
+    def update_pot(self, pot: int) -> None:
+        self.pot += pot
+
+    # ===========================
+    # = Update Pot size by Call =
+    # ===========================
+    def update_pot_call(self) -> None:
+        self.pot += self.c_call
+
+    # =======================
+    # = Update Current call =
+    # =======================
+    def update_call(self, call: int) -> None:
+        self.c_call = call
+
     # =======================
     # = Update player chips =
     # =======================

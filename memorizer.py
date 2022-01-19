@@ -19,6 +19,15 @@ class Memorizer:
         self.current_round = current_round
         self.log = log
 
+    ################
+    #  Main Entry  #
+    ################
+    def whats_pot(self) -> int:
+        return self.rounds[self.current_round].pot
+
+    def whats_call(self) -> int:
+        return self.rounds[self.current_round].c_call
+
     # =============
     # = New Round =
     # =============
@@ -45,12 +54,15 @@ class Memorizer:
     # = Forced bet =
     # ==============
     def forced_bet(self, player: str, chips: int) -> None:
+        self.rounds[self.current_round].update_pot(chips)
         self.rounds[self.current_round].opponents[player].forced_bet(chips)
 
     # ===============
     # = Player open =
     # ===============
     def open(self, player: str, chips: int) -> None:
+        self.rounds[self.current_round].update_call(chips)
+        self.rounds[self.current_round].update_pot_call()
         self.rounds[self.current_round].opponents[player].open(chips)
 
     # ================
@@ -64,12 +76,14 @@ class Memorizer:
     # ================
     # chips: amount raised to
     def raise_to(self, player: str, chips: int) -> None:
+        self.rounds[self.current_round].update_pot(chips)
         self.rounds[self.current_round].opponents[player].raise_to(chips)
 
     # ===============
     # = Player Call =
     # ===============
     def call(self, player: str) -> None:
+        self.rounds[self.current_round].update_pot_call()
         self.rounds[self.current_round].opponents[player].call()
 
     # ================
@@ -82,6 +96,7 @@ class Memorizer:
     # = Player ALl-In =
     # =================
     def all_in(self, player: str, chips: int) -> None:
+        self.rounds[self.current_round].update_pot(chips)
         self.rounds[self.current_round].opponents[player].all_in(chips)
 
     # ===============
