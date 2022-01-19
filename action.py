@@ -17,6 +17,7 @@ class Type(enum.Enum):
     PLAYER_FOLD = (5,)
     PLAYER_ALL_IN = (6,)
     PLAYER_DRAW = (7,)
+    PLAYER_CHIPS = (8,)
 
 
 class Action:

@@ -28,38 +28,49 @@ class Player:
     # = Update chips =
     # ================
     def update_chips(self, chips: int) -> None:
-        self._chips = chips
+        self.chips = chips
+        self.actions.append(Action(Type.PLAYER_CHIPS, chips))
 
     # ==============
     # = Forced bet =
     # ==============
     def forced_bet(self, chips: int) -> None:
+        self.chips -= chips
         self.actions.append(Action(Type.FORCED_BET, chips))
+        self.actions.append(Action(Type.PLAYER_CHIPS, self.chips))
 
     # ===============
     # = Player open =
     # ===============
     def open(self, chips: int) -> None:
+        self.chips -= chips
         self.actions.append(Action(Type.PLAYER_OPEN, chips))
+        self.actions.append(Action(Type.PLAYER_CHIPS, self.chips))
 
     # ================
     # = Player Check =
     # ================
     def check(self, chips: int) -> None:
+        self.chips -= chips
         self.actions.append(Action(Type.PLAYER_CHECK, chips))
+        self.actions.append(Action(Type.PLAYER_CHIPS, self.chips))
 
     # ================
     # = Player Raise =
     # ================
     # chips: amount raised to
     def raise_to(self, chips: int) -> None:
+        self.chips -= chips
         self.actions.append(Action(Type.PLAYER_RAISE, chips))
+        self.actions.append(Action(Type.PLAYER_CHIPS, self.chips))
 
     # ===============
     # = Player Call =
     # ===============
-    def call(self) -> None:
+    def call(self, chips: int) -> None:
+        self.chips -= chips
         self.actions.append(Action(Type.PLAYER_RAISE))
+        self.actions.append(Action(Type.PLAYER_CHIPS, self.chips))
 
     # ================
     # = Player Folds =
@@ -71,7 +82,9 @@ class Player:
     # = Player ALl-In =
     # =================
     def all_in(self, chips: int) -> None:
+        self.chips -= chips
         self.actions.append(Action(Type.PLAYER_ALL_IN, chips))
+        self.actions.append(Action(Type.PLAYER_CHIPS, self.chips))
 
     # ===============
     # = Player draw =

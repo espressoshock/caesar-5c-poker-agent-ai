@@ -69,7 +69,9 @@ class Memorizer:
     # = Player Check =
     # ================
     def check(self, player: str, chips: int = -1) -> None:
-        self.rounds[self.current_round].opponents[player].check(chips)
+        self.rounds[self.current_round].opponents[player].check(
+            self.rounds[self.current_round].c_call
+        )
 
     # ================
     # = Player Raise =
@@ -84,7 +86,9 @@ class Memorizer:
     # ===============
     def call(self, player: str) -> None:
         self.rounds[self.current_round].update_pot_call()
-        self.rounds[self.current_round].opponents[player].call()
+        self.rounds[self.current_round].opponents[player].call(
+            self.rounds[self.current_round].c_call
+        )
 
     # ================
     # = Player Folds =
